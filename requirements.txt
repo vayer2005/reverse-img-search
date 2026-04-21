@@ -5,3 +5,8 @@ transformers>=4.38.0
 Pillow>=10.0.0
 numpy>=1.24.0
 python-dotenv>=1.0.0
+# Postgres + pgvector (scripts/embed_to_postgres.py)
+psycopg[binary]>=3.1.0
+pgvector>=0.2.5
+# Elasticsearch kNN (scripts/index_to_elasticsearch.py)
+elasticsearch>=8.0.0,<9

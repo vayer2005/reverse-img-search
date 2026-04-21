@@ -10,6 +10,7 @@ environment), one JSON object per line (`path` + `vector`) on stdout.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -36,6 +37,16 @@ IMAGE_DIR = Path(_img).expanduser() if _img else None
 
 
 ImageInput = Union[str, Path, Image.Image, bytes, BinaryIO]
+
+
+def file_sha256_hex(path: Union[str, Path]) -> str:
+    """SHA-256 of file bytes, lowercase hex — matches `images.image_id` in db/migrations."""
+    p = Path(path)
+    h = hashlib.sha256()
+    with p.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def _to_pil(image: ImageInput) -> Image.Image:
