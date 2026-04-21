@@ -19,9 +19,7 @@ CREATE TABLE images (
     embedded_at TIMESTAMPTZ,
     es_indexed_at TIMESTAMPTZ,
     es_index_name TEXT,
-    needs_reindex BOOLEAN NOT NULL DEFAULT true,
     embed_error TEXT,
-    quarantined_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     CONSTRAINT images_id_sha256_hex CHECK (
@@ -36,17 +34,8 @@ CREATE TABLE images (
 COMMENT ON TABLE images IS 'Catalog of corpus images; embeddings are canonical; ES mirrors for query-time kNN.';
 COMMENT ON COLUMN images.image_id IS 'Stable id: hex(SHA-256) over file bytes (64 lowercase hex chars).';
 COMMENT ON COLUMN images.embedding IS 'DINOv2 ViT-B/14 CLS vector, dimension 768.';
-COMMENT ON COLUMN images.needs_reindex IS 'True until embedding is written for current model_version policy.';
 COMMENT ON COLUMN images.es_indexed_at IS 'Last successful bulk index to Elasticsearch for this row.';
 COMMENT ON COLUMN images.es_index_name IS 'ES index name written on last successful index (alias cutover / upgrades).';
-
-CREATE INDEX idx_images_needs_reindex
-    ON images (needs_reindex, image_id)
-    WHERE needs_reindex = true;
-
-CREATE INDEX idx_images_quarantine
-    ON images (quarantined_at)
-    WHERE quarantined_at IS NOT NULL;
 
 CREATE INDEX idx_images_meta_gin
     ON images USING gin (meta);
